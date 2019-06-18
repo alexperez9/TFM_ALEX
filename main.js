@@ -2,10 +2,6 @@ if (!navigator.bluetooth) {
   alert('Sorry, your browser doesn\'t support Bluetooth API');
 }
 
-const MY_BLUETOOTH_NAME = 'Adafruit Bluefruit LE';
-const SEND_SERVICE = 0x2A00;
-const SEND_SERVICE_CHARACTERISTIC = 0x2901;
-
 const controlButtonsListElements = document.querySelectorAll('.control-buttons > li');
 const connectButton = document.getElementById('connectButton');
 const disconnectButton = document.getElementById('disconnectButton');
@@ -21,20 +17,14 @@ let myDevice;
 connectButton.addEventListener('pointerup', connectButtonPointerUpHandler);
 
 function connectButtonPointerUpHandler() {
-  navigator.bluetooth.requestDevice({
-    filters:
-      [
-        { name: MY_BLUETOOTH_NAME },
-        { services: [SEND_SERVICE] },
-      ]
-  })
+  navigator.bluetooth.requestDevice();
     .then(device => {
       myDevice = device;
 
       return device.gatt.connect();
     })
-    .then(server => server.getPrimaryService(SEND_SERVICE))
-    .then(service => service.getCharacteristic(SEND_SERVICE_CHARACTERISTIC))
+    .then(server => server.getPrimaryService();
+    .then(service => service.getCharacteristic();
     .then(characteristic => {
       toggleLigthCharacteristic = characteristic;
 
