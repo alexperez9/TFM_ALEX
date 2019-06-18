@@ -2,9 +2,9 @@ if (!navigator.bluetooth) {
   alert('Sorry, your browser doesn\'t support Bluetooth API');
 }
 
-const MY_BLUETOOTH_NAME = 'CC41-A';
-const SEND_SERVICE = 0xFFE0;
-const SEND_SERVICE_CHARACTERISTIC = 0xFFE1;
+const MY_BLUETOOTH_NAME = 'Adafruit Bluefruit LE';
+const SEND_SERVICE = 0x2A00;
+const SEND_SERVICE_CHARACTERISTIC = 0x2901;
 
 const controlButtonsListElements = document.querySelectorAll('.control-buttons > li');
 const connectButton = document.getElementById('connectButton');
