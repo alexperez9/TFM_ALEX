@@ -11,6 +11,10 @@ const toggleBlueLightButton = document.getElementById('toggleBlueLight');
 const toggleGreenLightButton = document.getElementById('toggleGreenLight');
 const runBlinkLightButton = document.getElementById('runBlinkLight');
 
+    var UART_SERVICE_UUID = '6e400001-b5a3-f393-e0a9-e50e24dcca9e';
+    var UART_CHAR_RX_UUID = '6e400003-b5a3-f393-e0a9-e50e24dcca9e';
+    var UART_CHAR_TX_UUID = '6e400002-b5a3-f393-e0a9-e50e24dcca9e';
+
 let toggleLigthCharacteristic;
 let myDevice;
 
