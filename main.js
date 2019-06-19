@@ -2,6 +2,9 @@ if (!navigator.bluetooth) {
   alert('Sorry, your browser doesn\'t support Bluetooth API');
 }
 
+var SEND_SERVICE = '6e400001-b5a3-f393-e0a9-e50e24dcca9e';
+var SEND_SERVICE_CHARACTERISTIC = '6e400001-b5a3-f393-e0a9-e50e24dcca9e';
+
 const controlButtonsListElements = document.querySelectorAll('.control-buttons > li');
 const connectButton = document.getElementById('connectButton');
 const disconnectButton = document.getElementById('disconnectButton');
@@ -11,24 +14,26 @@ const toggleBlueLightButton = document.getElementById('toggleBlueLight');
 const toggleGreenLightButton = document.getElementById('toggleGreenLight');
 const runBlinkLightButton = document.getElementById('runBlinkLight');
 
-    var UART_SERVICE_UUID = '6e400001-b5a3-f393-e0a9-e50e24dcca9e';
-    var UART_CHAR_RX_UUID = '6e400003-b5a3-f393-e0a9-e50e24dcca9e';
-    var UART_CHAR_TX_UUID = '6e400002-b5a3-f393-e0a9-e50e24dcca9e';
-
 let toggleLigthCharacteristic;
 let myDevice;
 
 connectButton.addEventListener('pointerup', connectButtonPointerUpHandler);
 
 function connectButtonPointerUpHandler() {
-  navigator.bluetooth.requestDevice();
+  navigator.bluetooth.requestDevice({
+    filters:
+      [
+    
+        { services: [SEND_SERVICE] },
+      ]
+  })
     .then(device => {
       myDevice = device;
 
       return device.gatt.connect();
     })
-    .then(server => server.getPrimaryService();
-    .then(service => service.getCharacteristic();
+    .then(server => server.getPrimaryService(SEND_SERVICE))
+    .then(service => service.getCharacteristic(SEND_SERVICE_CHARACTERISTIC))
     .then(characteristic => {
       toggleLigthCharacteristic = characteristic;
 
@@ -39,7 +44,6 @@ function connectButtonPointerUpHandler() {
       console.error(error);
     });
 }
-
 function lightOffButtonClickHandler() {
   return toggleLigthCharacteristic.writeValue(Uint8Array.of(0));
 }
