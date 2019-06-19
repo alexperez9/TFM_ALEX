@@ -1,95 +1,93 @@
-if (!navigator.bluetooth) {
-  alert('Sorry, your browser doesn\'t support Bluetooth API');
-}
-
-
-var SEND_SERVICE = ' 6e400001-b5a3-f393-e0a9-e50e24dcca9e ';
-var SEND_SERVICE_CHARACTERISTIC = ' 6e400001-b5a3-f393-e0a9-e50e24dcca9e ';
-
-const controlButtonsListElements = document.querySelectorAll('.control-buttons > li');
-const connectButton = document.getElementById('connectButton');
-const disconnectButton = document.getElementById('disconnectButton');
-const lightOffButton = document.getElementById('lightOff');
-const toggleRedLightButton = document.getElementById('toggleRedLight');
-const toggleBlueLightButton = document.getElementById('toggleBlueLight');
-const toggleGreenLightButton = document.getElementById('toggleGreenLight');
-const runBlinkLightButton = document.getElementById('runBlinkLight');
-
-let toggleLigthCharacteristic;
-let myDevice;
-
-connectButton.addEventListener('pointerup', connectButtonPointerUpHandler);
-
-function connectButtonPointerUpHandler() {
-  navigator.bluetooth.requestDevice({
-    filters:
-      [
-        { services: [SEND_SERVICE] },
-      ]
-  })
-    .then(device => {
-      myDevice = device;
-
-      return device.gatt.connect();
+ // Estas ID de 128 bits corresponden al servicio BLE 'UART' de semiconductores nórdicos que utiliza Adafruit y otros.
+    var  UART_SERVICE_UUID  =  ' 6e400001-b5a3-f393-e0a9-e50e24dcca9e ' ;
+    var  UART_CHAR_RX_UUID  =  ' 6e400003-b5a3-f393-e0a9-e50e24dcca9e ' ;
+    var  UART_CHAR_TX_UUID  =  ' 6e400002-b5a3-f393-e0a9-e50e24dcca9e ' ;
+    var conectado =  falso ;
+    var gattServer =  null ;
+    var uartService =  null ;
+    var writeCharacteristic =  null ;
+    var readCharacteristic =  null ;
+    función  handleError ( error ) {
+        log ( " ERROR: "  + error);
+    }
+    función de  configuración de Bluetooth () {
+        if ( navegador . bluetooth  ==  indefinido ) {
+            registro ( ' ERROR: no se encontró la compatibilidad con Web Bluetooth, consulte: https://goo.gl/5p4zNM ' );
+            volver ;
+        }
+        if (gattServer ! =  nulo  &&  gattServer . conectado ) {
+            // desconectar ();
+        } else {
+            log ( ' Conectando ... ' );
+            if (readCharacteristic ==  null ) {
+                Navigator . bluetooth . requestDevice ({
+                            filtros : [{
+                                servicios : [ UART_SERVICE_UUID ]
+                            }]
+                        })
+                        . entonces ( función ( dispositivo ) {
+                            log ( ' > DeviceNAme = '  +  device . name );
+                            log ( ' Conectando al servidor GATT ... ' );
+                            regresar  dispositivo . connectGATT (); // Esto está desaprovechado, pero aún es necesario en algunas versiones "más antiguas" del navegador.
+                        }). entonces ( función ( servidor ) {
+                    log ( ' > Encontrado servidor GATT ' );
+                    gattServer = servidor;
+                    // Obtener servicio UART
+                    devuelve  gattServer . getPrimaryService ( UART_SERVICE_UUID );
+                }). entonces ( función ( servicio ) {
+                    log ( ' > Servicio de evento encontrado ' );
+                    uartService = servicio;
+                    // Consigue caracteristicas de escritura
+                    volver  uartService . getCharacteristic ( UART_CHAR_TX_UUID );
+                }). entonces ( función ( característica ) {
+                    log ( ' > Característica de escritura encontrada ' );
+                    writeCharacteristic = caracteristica;
+                    // Obtener característica de lectura
+                    volver  uartService . getCharacteristic ( UART_CHAR_RX_UUID );
+                }). entonces ( función ( característica ) {
+                    conectado =  verdadero ;
+                    log ( ' > Característica de lectura encontrada ' );
+                    readCharacteristic = característico;
+                    deviceReady ();
+                    // Escucha las notificaciones del dispositivo
+                    volver  readCharacteristic . startNotifications (). entonces ( función () {
+                        readCharacteristic . addEventListener ( ' characteristicvaluechanged ' , la función ( evento ) {
+                            log ( ' > featurevaluechanged = '  +  event . target . value  +  ' [ '  +  event . target . value . byteLength  +  ' ] ' );
+                            si ( evento . objetivo . valor . ByteLength  >  0 ) {
+                                var data =  new  Uint8Array ( event . target . value );
+                                log ( " Recv data: "  + data);
+                            }
+                        });
+                    });
+                }). catch (handleError);
+            }
+        }
+    }
+    función  enviar ( datos ) {
+        log ( " Enviando: "  + datos);
+        devuelve  writeCharacteristic . writeValue ( nuevo  Uint8Array (datos));
+    }
+    // Estos números hexadecimales mágicos a continuación se ajustan al estándar Firmata, en una aplicación real que usarías
+    // A las bibliotecas de JavaScript Firmata para ocultar estos detalles.
+    // Un ejemplo del cual será publicado en www.thebubbleworks.com
+    var  FIRMATA_PIN13_DIGITAL_OUT_MESSAGE  = [ 0xf4 , 0x0d , 0x01 ];
+    var  FIRMATA_PIN13_DIGITAL_LOW_MESSAGE  = [ 0x91 , 0x00 , 0x00 ];
+    var  FIRMATA_PIN13_DIGITAL_HIGH_MESSAGE  = [ 0x91 , 0x20 , 0x00 ];
+    función  deviceReady () {
+        enviar ( FIRMATA_PIN13_DIGITAL_OUT_MESSAGE ). entonces ( función () {
+            enviar ( FIRMATA_PIN13_DIGITAL_LOW_MESSAGE );
     })
-    .then(server => server.getPrimaryService(SEND_SERVICE))
-    .then(service => service.getCharacteristic(SEND_SERVICE_CHARACTERISTIC))
-    .then(characteristic => {
-      toggleLigthCharacteristic = characteristic;
+        ;
+    }
+    función  ledOnPressed () {
+        enviar ( FIRMATA_PIN13_DIGITAL_HIGH_MESSAGE );
+    }
+    función  ledOffPressed () {
+        enviar ( FIRMATA_PIN13_DIGITAL_LOW_MESSAGE );
+    }
 
-      toggleButtonsVisible();
-      toggleItemsEventListeners('addEventListener');
-    })
-    .catch(error => {
-      console.error(error);
-    });
-}
-
-function lightOffButtonClickHandler() {
-  return toggleLigthCharacteristic.writeValue(Uint8Array.of(0));
-}
-
-function toggleLightButtonClickHandler(event) {
-  const code = Number(event.target.dataset.code);
-
-  if (code === 1) {
-    toggleLigthCharacteristic.writeValue(Uint8Array.of(code));
-
-    return;
-  }
-
-  toggleLigthCharacteristic.readValue()
-    .then(currentCode => {
-      const convertedCode = currentCode.getUint8(0);
-
-      toggleLigthCharacteristic.writeValue(Uint8Array.of(convertedCode === code ? 0 : code));
-    });
-}
-
-function toggleButtonsVisible() {
-  Array.prototype.forEach.call(controlButtonsListElements, listElement => {
-    listElement.classList.toggle('visible');
-  });
-}
-
-function disconnectButtonClickHandler() {
-  lightOffButtonClickHandler()
-    .then( () => {
-      myDevice.gatt.disconnect();
-
-      toggleItemsEventListeners('removeEventListener');
-      toggleButtonsVisible();
-
-      toggleLigthCharacteristic = undefined;
-      myDevice = undefined;
-    });
-}
-
-function toggleItemsEventListeners(action) {
-  disconnectButton[action]('click', disconnectButtonClickHandler);
-  lightOffButton[action]('click', lightOffButtonClickHandler);
-  runBlinkLightButton[action]('click', toggleLightButtonClickHandler);
-  toggleGreenLightButton[action]('click', toggleLightButtonClickHandler);
-  toggleRedLightButton[action]('click', toggleLightButtonClickHandler);
-  toggleBlueLightButton[action]('click', toggleLightButtonClickHandler);
-}
+     registro de función ( línea ) {
+        consola . log (línea);
+        previous_text =  documento . getElementById ( ' consoleTextArea ' ). innerHTML ;
+        documento . getElementById ( ' consoleTextArea ' ). innerHTML  = previous_text + line +  " \ n " ;
+    }
