@@ -77,56 +77,8 @@ function connectButtonPointerUpHandler() {
       console.error(error);
     });
 }
+</script>
 
-function lightOffButtonClickHandler() {
-  return toggleLigthCharacteristic.writeValue(Uint8Array.of(0));
-}
-
-function toggleLightButtonClickHandler(event) {
-  const code = Number(event.target.dataset.code);
-
-  if (code === 1) {
-    toggleLigthCharacteristic.writeValue(Uint8Array.of(code));
-
-    return;
-  }
-
-  toggleLigthCharacteristic.readValue()
-    .then(currentCode => {
-      const convertedCode = currentCode.getUint8(0);
-
-      toggleLigthCharacteristic.writeValue(Uint8Array.of(convertedCode === code ? 0 : code));
-    });
-}
-
-function toggleButtonsVisible() {
-  Array.prototype.forEach.call(controlButtonsListElements, listElement => {
-    listElement.classList.toggle('visible');
-  });
-}
-
-function disconnectButtonClickHandler() {
-  lightOffButtonClickHandler()
-    .then( () => {
-      myDevice.gatt.disconnect();
-
-      toggleItemsEventListeners('removeEventListener');
-      toggleButtonsVisible();
-
-      toggleLigthCharacteristic = undefined;
-      myDevice = undefined;
-    });
-}
-
-function toggleItemsEventListeners(action) {
-  disconnectButton[action]('click', disconnectButtonClickHandler);
-  lightOffButton[action]('click', lightOffButtonClickHandler);
-  runBlinkLightButton[action]('click', toggleLightButtonClickHandler);
-  toggleGreenLightButton[action]('click', toggleLightButtonClickHandler);
-  toggleRedLightButton[action]('click', toggleLightButtonClickHandler);
-  toggleBlueLightButton[action]('click', toggleLightButtonClickHandler);
-}
-    </script>
     
 </body>
 </html>
