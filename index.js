@@ -2,8 +2,7 @@
   if (!navigator.bluetooth) {
   alert('Sorry, your browser doesn\'t support Bluetooth API');
 }
-var SEND_SERVICE = '6e400001-b5a3-f393-e0a9-e50e24dcca9e';
-var SEND_SERVICE_CHARACTERISTIC = '6e400001-b5a3-f393-e0a9-e50e24dcca9e';
+
 const controlButtonsListElements = document.querySelectorAll('.control-buttons > li');
 const connectButton = document.getElementById('connectButton');
 const disconnectButton = document.getElementById('disconnectButton');
@@ -12,29 +11,29 @@ const toggleRedLightButton = document.getElementById('toggleRedLight');
 const toggleBlueLightButton = document.getElementById('toggleBlueLight');
 const toggleGreenLightButton = document.getElementById('toggleGreenLight');
 const runBlinkLightButton = document.getElementById('runBlinkLight');
-    const device=device.gatt.connect();
+
 let toggleLigthCharacteristic;
 let myDevice;
 connectButton.addEventListener('pointerup', connectButtonPointerUpHandler);
-function connectButtonPointerUpHandler() {
-  navigator.bluetooth.requestDevice({
-    filters:
-      [
-        { services: [SEND_SERVICE] },
-      ]
-  })
-    .then(device => {
-      myDevice = device;
-      return device.gatt.connect();
-    })
-    .then(server => server.getPrimaryService(SEND_SERVICE))
-    .then(service => service.getCharacteristic(SEND_SERVICE_CHARACTERISTIC))
-    .then(characteristic => {
-      toggleLigthCharacteristic = characteristic;
-      toggleButtonsVisible();
-      toggleItemsEventListeners('addEventListener');
-    })
-    .catch(error => {
-      console.error(error);
-    });
+  function connectButtonPointerUpHandler() {
+    navigator.bluetooth.requestDevice({
+      filters:
+        [
+          { services: "6e400001-b5a3-f393-e0a9-e50e24dcca9e" },
+        ]
+          })
+       .then(device => {
+        myDevice = device;
+       return device.gatt.connect();
+          })
+       .then(server => server.getPrimaryService("6e400001-b5a3-f393-e0a9-e50e24dcca9e"))
+        .then(service => service.getCharacteristic("6e400001-b5a3-f393-e0a9-e50e24dcca9e"))
+        .then(characteristic => {
+         toggleLigthCharacteristic = characteristic;
+        toggleButtonsVisible();
+        toggleItemsEventListeners('addEventListener');
+         })
+       .catch(error => {
+         console.error(error);
+          });
 }
