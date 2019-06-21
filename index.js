@@ -1,8 +1,9 @@
 if (!navigator.bluetooth) {
   alert('Sorry, your browser doesn\'t support Bluetooth API');
 }
-var SEND_SERVICE = '6e400001-b5a3-f393-e0a9-e50e24dcca9e';
-var SEND_SERVICE_CHARACTERISTIC = '6e400001-b5a3-f393-e0a9-e50e24dcca9e';
+
+const SEND_SERVICE = '6e400001-b5a3-f393-e0a9-e50e24dcca9e';   //vale const o tendría que ser var
+const SEND_SERVICE_CHARACTERISTIC = '6e400001-b5a3-f393-e0a9-e50e24dcca9e';
 
 const controlButtonsListElements = document.querySelectorAll('.control-buttons > li');
 const connectButton = document.getElementById('connectButton');
