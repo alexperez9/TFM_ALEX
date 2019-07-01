@@ -26,7 +26,9 @@ function connectButtonPointerUpHandler() {
       log('Connecting to GATT Server...');
       return device.gatt.connect();
     })
-    .then(server => server.getPrimaryService(SEND_SERVICE))
+    .then(server => {server.getPrimaryService(SEND_SERVICE)
+                    
+     log('Getting Service...');})
     .then(service => service.getCharacteristic(SEND_SERVICE_CHARACTERISTIC))
     .then(characteristic => {
       toggleLigthCharacteristic = characteristic;
