@@ -37,7 +37,6 @@ function connectButtonPointerUpHandler() {
     .then(service => service.getCharacteristic(SEND_SERVICE_CHARACTERISTIC))
     .then(characteristic => {
       toggleLigthCharacteristic = characteristic;
-     return toggleLigthCharacteristic.startNotifications()
 
       toggleButtonsVisible();
       toggleItemsEventListeners('addEventListener');
