@@ -4,6 +4,7 @@ if (!navigator.bluetooth) {
 
 const SEND_SERVICE = '6e400001-b5a3-f393-e0a9-e50e24dcca9e';   //vale const o tendría que ser var
 const SEND_SERVICE_CHARACTERISTIC = '6e400003-b5a3-f393-e0a9-e50e24dcca9e';
+const SEND_SERVICE_WRITE = '6e400002-b5a3-f393-e0a9-e50e24dcca9e';
 
 const controlButtonsListElements = document.querySelectorAll('.control-buttons > li');
 const connectButton = document.getElementById('connectButton');
@@ -26,12 +27,17 @@ function connectButtonPointerUpHandler() {
       log('Connecting to GATT Server...');
       return device.gatt.connect();
     })
-    .then(server => {server.getPrimaryService(SEND_SERVICE)
-                    
-     log('Getting Service...');})
-    .then(service => service.getCharacteristic(SEND_SERVICE_CHARACTERISTIC))
+    .then(server => {
+  			  log('Getting Service...');
+  			  return server.getPrimaryService(UART_SERVICE_UUID);})
+    .then(service => {
+                    log('> Found event service');
+          return service.getCharacteristic(SEND_SERVICE_CHARACTERISTIC))
     .then(characteristic => {
-      toggleLigthCharacteristic = characteristic;
+      log('> Found event service');
+       toggleLigthCharacteristic = characteristic;
+        return toggleLigthCharacteristic.getCharacteristic(SEND_SERVICE_WRITE))
+     
 
       toggleButtonsVisible();
       toggleItemsEventListeners('addEventListener');
