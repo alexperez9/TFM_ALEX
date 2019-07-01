@@ -21,27 +21,29 @@ let myDevice;
 connectButton.addEventListener('pointerup', connectButtonPointerUpHandler);
 
 function connectButtonPointerUpHandler() {
-  navigator.bluetooth.requestDevice({ acceptAllDevices:true })
+ navigator.bluetooth.requestDevice({
+    filters:
+      [
+        { name: MY_BLUETOOTH_NAME },
+        { services: [SEND_SERVICE] },
+      ]
+  })
     .then(device => {
       myDevice = device;
-      log('Connecting to GATT Server...');
+
       return device.gatt.connect();
     })
-    .then(server => {
-  			  log('Getting Service...');
-  			  return server.getPrimaryService(UART_SERVICE_UUID);})
-    .then(service => {
-                    log('> Found event service');
-          return service.getCharacteristic(SEND_SERVICE_CHARACTERISTIC))
+    .then(server => server.getPrimaryService(SEND_SERVICE))
+    .then(service => service.getCharacteristic(SEND_SERVICE_CHARACTERISTIC))
     .then(characteristic => {
-      log('> Found event service');
-       toggleLigthCharacteristic = characteristic;
-        return toggleLigthCharacteristic.getCharacteristic(SEND_SERVICE_WRITE))
-     
+      toggleLigthCharacteristic = characteristic;
+     return toggleLigthCharacteristic.startNotifications()
 
       toggleButtonsVisible();
       toggleItemsEventListeners('addEventListener');
+   
     })
+  
     .catch(error => {
       console.error(error);
     });
